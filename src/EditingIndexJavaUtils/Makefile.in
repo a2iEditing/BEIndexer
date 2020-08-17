@@ -1,0 +1,9 @@
+Source = \
+          BEDGenomeIndexer.java \
+		  BEDUtilsConsts.java \
+          EditingIndexBEDUtils.java \
+          PileupToCount.java
+
+Main = EditingIndexBEDUtils
+
+include @abs_top_builddir@/Makefile
