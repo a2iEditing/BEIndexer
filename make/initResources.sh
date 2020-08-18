@@ -169,17 +169,10 @@ then
   echo "Downloading Hg38 Alu Repeats Table ${HG38_FTP_URL}${HG38_REGIONS_TABLE_FILE}"
   wget "${HG38_FTP_URL}${HG38_REGIONS_TABLE_FILE}"  --directory-prefix="${HUMAN_REGIONS_DIR}"
   echo "Processing Hg38  Alu Repeats Table ${HG38_REGIONS_TABLE_FILE}"
-  zcat "${HUMAN_REGIONS_DIR}/${HG38_REGIONS_TABLE_FILE}"| awk '{OFS ="\t"}($13 ~/Alu/ && $6 !~/_/) {print $6,$7,$8}' | ${BEDTOOLS_PATH} sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin| gzip > "${HUMAN_REGIONS_DIR}/${HG38_REGIONS_FILE}"
+  zcat "${HUMAN_REGIONS_DIR}/${HG38_REGIONS_TABLE_FILE}"| awk '{OFS ="\t"}($13 ~/Alu/ && $6 !~/_/) {print $6,$7,$8}' | \
+  ${BEDTOOLS_PATH} sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin| gzip > "${HUMAN_REGIONS_DIR}/${HG38_REGIONS_FILE}"
   rm "${HUMAN_REGIONS_DIR}/${HG38_REGIONS_TABLE_FILE}"
   echo "Done Processing Hg38 Alu Repeats Table ${HG38_REGIONS_TABLE_FILE}"
-  # Generate Indexes
-  if [ "${DONT_GENERATE_GENOME_INDEXES}" = false ]
-  then
-    echo "Attempting to Create Genome Index of Hg38 Alu Repeats ${HG38_REGIONS_FILE}"
-    "${JAVA_HOME}/bin/java" -jar "${LIB_DIR}/EditingIndexJavaUtils.jar" GenerateIndex -i \
-      "${HUMAN_REGIONS_DIR}/${HG38_REGIONS_FILE}" -g "${HUMAN_GENOME_DIR}/${HG38_GENOME_FASTA}" \
-      -o "${HUMAN_REGIONS_DIR}/${HG38_GENOME_FASTA}.${HG38_REGIONS_FILE}.GenomeIndex.jsd" -b "${BEDTOOLS_PATH}"
-  fi
 
   # SNPs
   echo "Downloading Hg38 Common Genomic SNPs Table ${HG38_FTP_URL}${HG38_SNPS_TABLE_FILE}"
@@ -202,8 +195,10 @@ then
   zcat "${HUMAN_REFSEQ_DIR}/${HG38_REFSEQ_TABLE_FILE}"| awk '{OFS ="\t"} {print $3,$7,$8}' | "${BEDTOOLS_PATH}" \
   subtract -a "${HUMAN_REGIONS_DIR}/${HG38_CDS_REGIONS_FILE}.Exons.bed" -b stdin | \
   "${BEDTOOLS_PATH}" subtract -a "${HUMAN_REGIONS_DIR}/${HG38_CDS_REGIONS_FILE}.Exons.bed" -b stdin | \
-  "${BEDTOOLS_PATH}" sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin| gzip > \
+  "${BEDTOOLS_PATH}" sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin| \
+  ${BEDTOOLS_PATH} subtract -a stdin -b "${HUMAN_REGIONS_DIR}/${HG38_REGIONS_FILE}"| gzip > \
   "${HUMAN_REGIONS_DIR}/${HG38_CDS_REGIONS_FILE}"
+  echo "Done Processing Hg38 RefSeq Curated CDS Table (Alu excluded)"
 
   rm "${HUMAN_REFSEQ_DIR}/${HG38_REFSEQ_TABLE_FILE}" "${HUMAN_REGIONS_DIR}/${HG38_CDS_REGIONS_FILE}.Exons.bed"
   echo "Done Processing Hg38 RefSeq Curated Table ${HG38_REFSEQ_TABLE_FILE}"
@@ -232,11 +227,13 @@ then
   zcat "${HUMAN_REFSEQ_DIR}/${HG38_ALL_REFSEQ_TABLE_FILE}"| awk '{OFS ="\t"} {print $3,$7,$8}' | "${BEDTOOLS_PATH}" \
   subtract -a "${HUMAN_REGIONS_DIR}/${HG38_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed" -b stdin | \
   "${BEDTOOLS_PATH}" subtract -a "${HUMAN_REGIONS_DIR}/${HG38_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed" -b stdin | \
-  "${BEDTOOLS_PATH}" sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin| gzip > \
+  "${BEDTOOLS_PATH}" sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin| \
+  ${BEDTOOLS_PATH} subtract -a stdin -b "${HUMAN_REGIONS_DIR}/${HG38_REGIONS_FILE}"| gzip > \
   "${HUMAN_REGIONS_DIR}/${HG38_CDS_REFSEQ_ALL_REGIONS_FILE}"
+  echo "Done Processing Hg38 RefSeq All CDS Table (Alu excluded)"
 
   rm "${HUMAN_REFSEQ_DIR}/${HG38_ALL_REFSEQ_TABLE_FILE}" "${HUMAN_REGIONS_DIR}/${HG38_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed"
-  echo "Done Processing Hg38 RefSeq Curated Table ${HG38_ALL_REFSEQ_TABLE_FILE}"
+  echo "Done Processing Hg38 RefSeq All Table ${HG38_ALL_REFSEQ_TABLE_FILE}"
 
   # --- Generate Indexes for CDSs
   if [ "${DONT_GENERATE_GENOME_INDEXES}" = false ]
@@ -278,15 +275,6 @@ then
   rm "${HUMAN_REGIONS_DIR}/${HG19_REGIONS_TABLE_FILE}"
   echo "Done Processing HG19 Alu Repeats Table ${HG19_REGIONS_TABLE_FILE}"
 
-  # Generate Indexes
-  if [ "${DONT_GENERATE_GENOME_INDEXES}" = false ]
-  then
-    echo "Attempting to Create Genome Index of Hg19 Alu Repeats ${HG19_REGIONS_FILE}"
-    "${JAVA_HOME}/bin/java" -jar "${LIB_DIR}/EditingIndexJavaUtils.jar" GenerateIndex -i \
-      "${HUMAN_REGIONS_DIR}/${HG19_REGIONS_FILE}"  -g "${HUMAN_GENOME_DIR}/${HG19_GENOME_FASTA}" \
-      -o "${HUMAN_REGIONS_DIR}/${HG19_GENOME_FASTA}.${HG19_REGIONS_FILE}.GenomeIndex.jsd" -b "${BEDTOOLS_PATH}"
-  fi
-
   # SNPs
   echo "Downloading HG19 Common Genomic SNPs Table ${HG19_FTP_URL}${HG19_SNPS_TABLE_FILE}"
   wget "${HG19_FTP_URL}${HG19_SNPS_TABLE_FILE}"  --directory-prefix="${HUMAN_SNPS_DIR}"
@@ -308,8 +296,10 @@ then
   zcat "${HUMAN_REFSEQ_DIR}/${HG19_REFSEQ_TABLE_FILE}"| awk '{OFS ="\t"} {print $3,$7,$8}' | "${BEDTOOLS_PATH}" \
   subtract -a "${HUMAN_REGIONS_DIR}/${HG19_CDS_REGIONS_FILE}.Exons.bed" -b stdin | \
   "${BEDTOOLS_PATH}" subtract -a "${HUMAN_REGIONS_DIR}/${HG19_CDS_REGIONS_FILE}.Exons.bed" -b stdin | \
-  "${BEDTOOLS_PATH}" sort -i stdin | ${BEDTOOLS_PATH} merge -i stdin| gzip > \
+  "${BEDTOOLS_PATH}" sort -i stdin | ${BEDTOOLS_PATH} merge -i stdin | \
+  ${BEDTOOLS_PATH} subtract -a stdin -b "${HUMAN_REGIONS_DIR}/${HG19_REGIONS_FILE}"| gzip > \
   "${HUMAN_REGIONS_DIR}/${HG19_CDS_REGIONS_FILE}"
+  echo "Done Processing Hg19 RefSeq Curated CDS Table (Alu excluded)"
 
   rm "${HUMAN_REFSEQ_DIR}/${HG19_REFSEQ_TABLE_FILE}" "${HUMAN_REGIONS_DIR}/${HG19_CDS_REGIONS_FILE}.Exons.bed"
   echo "Done Processing HG19 RefSeq Curated Table ${HG19_REFSEQ_TABLE_FILE}"
@@ -337,11 +327,13 @@ then
   zcat "${HUMAN_REFSEQ_DIR}/${HG19_ALL_REFSEQ_TABLE_FILE}"| awk '{OFS ="\t"} {print $3,$7,$8}' | "${BEDTOOLS_PATH}" \
   subtract -a "${HUMAN_REGIONS_DIR}/${HG19_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed" -b stdin | \
   "${BEDTOOLS_PATH}" subtract -a "${HUMAN_REGIONS_DIR}/${HG19_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed" -b stdin | \
-  "${BEDTOOLS_PATH}" sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin| gzip > \
+  "${BEDTOOLS_PATH}" sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin | \
+  ${BEDTOOLS_PATH} subtract -a stdin -b "${HUMAN_REGIONS_DIR}/${HG19_REGIONS_FILE}" | gzip > \
   "${HUMAN_REGIONS_DIR}/${HG19_CDS_REFSEQ_ALL_REGIONS_FILE}"
+  echo "Done Processing Hg19 RefSeq All CDS Table (Alu excluded)"
 
   rm "${HUMAN_REFSEQ_DIR}/${HG19_ALL_REFSEQ_TABLE_FILE}" "${HUMAN_REGIONS_DIR}/${HG19_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed"
-  echo "Done Processing Hg19 RefSeq Curated Table ${HG19_ALL_REFSEQ_TABLE_FILE}"
+  echo "Done Processing Hg19 RefSeq All Table ${HG19_ALL_REFSEQ_TABLE_FILE}"
 
   # --- Generate Indexes for CDSs
   if [ "${DONT_GENERATE_GENOME_INDEXES}" = false ]
@@ -381,15 +373,6 @@ then
   rm "${MURINE_REGIONS_DIR}/${MM10_REGIONS_TABLE_FILE}"
   echo "Done Processing MM10 B1 and B2 Repeats Table ${MM10_REGIONS_TABLE_FILE}"
 
-  # Generate Indexes
-  if [ "${DONT_GENERATE_GENOME_INDEXES}" = false ]
-  then
-    echo "Attempting to Create Genome Index of MM10 B1 and B2 Repeats ${MM10_REGIONS_FILE}"
-    "${JAVA_HOME}/bin/java" -jar "${LIB_DIR}/EditingIndexJavaUtils.jar" GenerateIndex -i \
-      "${MURINE_REGIONS_DIR}/${MM10_REGIONS_FILE}" -g "${MURINE_GENOME_DIR}/${MM10_GENOME_FASTA}" \
-      -o "${MURINE_REGIONS_DIR}/${MM10_GENOME_FASTA}.${MM10_REGIONS_FILE}.GenomeIndex.jsd" -b "${BEDTOOLS_PATH}"
-  fi
-
   # SNPs
   echo "Downloading MM10 Common Genomic SNPs Table ${MM10_FTP_URL}${MM10_SNPS_TABLE_FILE}"
   wget "${MM10_FTP_URL}${MM10_SNPS_TABLE_FILE}"  --directory-prefix="${MURINE_SNPS_DIR}"
@@ -411,8 +394,10 @@ then
   zcat "${MURINE_REFSEQ_DIR}/${MM10_REFSEQ_TABLE_FILE}"| awk '{OFS ="\t"} {print $3,$7,$8}' | "${BEDTOOLS_PATH}" \
   subtract -a "${MURINE_REGIONS_DIR}/${MM10_CDS_REGIONS_FILE}.Exons.bed" -b stdin | \
   "${BEDTOOLS_PATH}" subtract -a "${MURINE_REGIONS_DIR}/${MM10_CDS_REGIONS_FILE}.Exons.bed" -b stdin | \
-  "${BEDTOOLS_PATH}" sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin | gzip > \
+  "${BEDTOOLS_PATH}" sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin  | \
+  ${BEDTOOLS_PATH} subtract -a stdin -b "${MURINE_REGIONS_DIR}/${MM10_REGIONS_FILE}"| gzip > \
   "${MURINE_REGIONS_DIR}/${MM10_CDS_REGIONS_FILE}"
+  echo "Done Processing MM10 RefSeq Curated CDS Table (B1 B2 excluded)"
 
   rm "${MURINE_REFSEQ_DIR}/${MM10_REFSEQ_TABLE_FILE}" "${MURINE_REGIONS_DIR}/${MM10_CDS_REGIONS_FILE}.Exons.bed"
   echo "Done Processing MM10 RefSeq Curated Table ${MM10_REFSEQ_TABLE_FILE}"
@@ -440,8 +425,10 @@ then
   zcat "${HUMAN_REFSEQ_DIR}/${MM10_ALL_REFSEQ_TABLE_FILE}"| awk '{OFS ="\t"} {print $3,$7,$8}' | "${BEDTOOLS_PATH}" \
   subtract -a "${HUMAN_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed" -b stdin | \
   "${BEDTOOLS_PATH}" subtract -a "${HUMAN_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed" -b stdin | \
-  "${BEDTOOLS_PATH}" sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin| gzip > \
+  "${BEDTOOLS_PATH}" sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin| \
+  ${BEDTOOLS_PATH} subtract -a stdin -b "${MURINE_REGIONS_DIR}/${MM10_REGIONS_FILE}"| gzip > \
   "${HUMAN_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}"
+  echo "Done Processing MM10 RefSeq All CDS Table (B1 B2 excluded)"
 
   rm "${HUMAN_REFSEQ_DIR}/${MM10_ALL_REFSEQ_TABLE_FILE}" "${HUMAN_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed"
   echo "Done Processing MM10 RefSeq Curated Table ${MM10_ALL_REFSEQ_TABLE_FILE}"
@@ -505,15 +492,6 @@ then
     echo "Failed to Process MM9 Files (cd command fails)"
   fi
 
-  # Generate Indexes
-  if [ "${DONT_GENERATE_GENOME_INDEXES}" = false ]
-  then
-    echo "Attempting to Create Genome Index of MM10 B1 and B2 Repeats ${MM9_REGIONS_FILE}"
-    "${JAVA_HOME}/bin/java" -jar "${LIB_DIR}/EditingIndexJavaUtils.jar" GenerateIndex -i \
-      "${MURINE_REGIONS_DIR}/${MM9_REGIONS_FILE}" -g "${MURINE_GENOME_DIR}/${MM9_GENOME_FASTA}" \
-      -o "${MURINE_REGIONS_DIR}/${MM9_GENOME_FASTA}.${MM9_REGIONS_FILE}.GenomeIndex.jsd" -b "${BEDTOOLS_PATH}"
-  fi
-
   # SNPs
   echo "Downloading MM9 Genomic SNPs Table ${MM9_FTP_URL}${MM9_SNPS_TABLE_FILE}"
   wget "${MM9_FTP_URL}${MM9_SNPS_TABLE_FILE}"  --directory-prefix="${MURINE_SNPS_DIR}"
@@ -535,7 +513,9 @@ then
   zcat "${MURINE_REFSEQ_DIR}/${MM9_REFSEQ_TABLE_FILE}"| awk '{OFS ="\t"} {print $3,$7,$8}' | "${BEDTOOLS_PATH}" \
   subtract -a "${MURINE_REGIONS_DIR}/${MM9_CDS_REGIONS_FILE}.Exons.bed" -b stdin | \
   "${BEDTOOLS_PATH}" subtract -a "${MURINE_REGIONS_DIR}/${MM9_CDS_REGIONS_FILE}.Exons.bed" -b stdin | \
-  ${BEDTOOLS_PATH} sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin | gzip > "${MURINE_REGIONS_DIR}/${MM9_CDS_REGIONS_FILE}"
+  ${BEDTOOLS_PATH} sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin | \
+  ${BEDTOOLS_PATH} subtract -a stdin -b "${MURINE_REGIONS_DIR}/${MM9_REGIONS_FILE}" | gzip > "${MURINE_REGIONS_DIR}/${MM9_CDS_REGIONS_FILE}"
+  echo "Done Processing MM9 RefSeq CDS Table (B1 B2 excluded)"
 
   rm "${MURINE_REFSEQ_DIR}/${MM9_REFSEQ_TABLE_FILE}" "${MURINE_REGIONS_DIR}/${MM9_CDS_REGIONS_FILE}.Exons.bed"
   echo "Done Processing MM9 RefSeq Table ${MM9_REFSEQ_TABLE_FILE}"
