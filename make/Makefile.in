@@ -313,7 +313,7 @@ build : $(PackageListLoop)
 	$(Bash) $(DevRoot)/make/initResources.sh \
 	$(ResourcesDir) \
 	$(LibDir) \
-	$(DevRoot)/src/RNAEditingIndex/Configs/ResourcesPaths.ini \
+	$(DevRoot)/src/BEIndexer/Configs/ResourcesPaths.ini \
 	@DONT_DOWNLOAD@ \
 	@DONT_WRITE@ \
     @BEDTOOLS_PATH@ \
@@ -323,7 +323,7 @@ build : $(PackageListLoop)
     @DONT_GENERATE_GENOME_INDEXES@ \
     $(DevRoot)
 
-	ln -s $(DevRoot)/src/RNAEditingIndex/RNAEditingIndex $(DevRoot)
+	ln -s $(DevRoot)/src/BEIndexer/BEIndexer $(DevRoot)
 	$(Print) Done build.
 
 _all : _buildall
