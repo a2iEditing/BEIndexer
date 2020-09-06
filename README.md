@@ -1,5 +1,5 @@
 # RNAEditingIndexer
-A tool for calculating RNA editing levels from RNA seq data
+A tool for calculating RNA and editing levels from NGS data
 
 ## Installation and Requirements
 
@@ -36,24 +36,24 @@ Any of the used paths (to resources directory and the programs) can be set at th
 ```
 #change working dir to the installtion dir
 
-cd ./RNAEditingIndexer
+cd ./BEIndexer
 
 #configure installtion environmental variables
 
-. ./configure.sh
+configure
 
 make
 ```
 
 ### Resources File
-The installation creates a file named ResourcesPaths.ini at \<_InstallPath_\>/src/RNAEditingIndex/Configs (set with *configure.sh*) which specifies the default path to the required programs and data files (such as genomes and tables). **Modify this file after installtion to change defaults (such as in the case of not downloading the data files)**
+The installation creates a file named ResourcesPaths.ini at \<_InstallPath_\>/src/BEIndexer/Configs (set with *configure.sh*) which specifies the default path to the required programs and data files (such as genomes and tables). **Modify this file after installtion to change defaults (such as in the case of not downloading the data files)**
 
 ## Running
-Simply run _RNAEditingIndex -h_  to see full help.
+Simply run _BEIndexer -h_  to see full help.
 
 ### An example for a simple run:
 ```
-_InstallPath_/RNAEditingIndex -d _BAMs diretory_ -f Aligned.sortedByCoord.out.bam. -l _logs directory_ -o _cmpileup output directory_ -os _summery files directory_ --genome hg38 
+_InstallPath_/BEIndexer -d _BAMs diretory_ -f Aligned.sortedByCoord.out.bam. -l _logs directory_ -o _cmpileup output directory_ -os _summery files directory_ --genome hg38 
 ```
 
 ### Typical runtime
@@ -85,7 +85,7 @@ For a full explanation of the output see the documentaion, but in a nutshell:
   
  
 ## Test Run
-To run the test please use the following command: \<_InstallPath_\>/RNAEditingIndex -d \<_InstallPath_\>/TestResources/BAMs -f _sampled_with_0.1.Aligned.sortedByCoord.out.bam.AluChr1Only.bam -l \<_your wanted logs dir_\> -o \<_wanted cmpileup output dir_\> -os \<_wanted summery dir_\> --genome hg38 -rb \<_InstallPath_\>/TestResources/AnnotationAndRegions/ucscHg38Alu.OnlyChr1.bed.gz --refseq \<_InstallPath_\>/TestResources/AnnotationAndRegions/ucscHg38RefSeqCurated.OnlyChr1.bed.gz --snps  \<_InstallPath_\>/TestResources/AnnotationAndRegions/ucscHg38CommonGenomicSNPs150.OnlyChr1.bed.gz --genes_expression  \<_InstallPath_\>/TestResources/AnnotationAndRegions/ucscHg38GTExGeneExpression.OnlyChr1.bed.gz --verbose --stranded --paired
+To run the test please use the following command: \<_InstallPath_\>/BEIndexer -d \<_InstallPath_\>/TestResources/BAMs -f _sampled_with_0.1.Aligned.sortedByCoord.out.bam.AluChr1Only.bam -l \<_your wanted logs dir_\> -o \<_wanted cmpileup output dir_\> -os \<_wanted summery dir_\> --genome hg38 -rb \<_InstallPath_\>/TestResources/AnnotationAndRegions/ucscHg38Alu.OnlyChr1.bed.gz --refseq \<_InstallPath_\>/TestResources/AnnotationAndRegions/ucscHg38RefSeqCurated.OnlyChr1.bed.gz --snps  \<_InstallPath_\>/TestResources/AnnotationAndRegions/ucscHg38CommonGenomicSNPs150.OnlyChr1.bed.gz --genes_expression  \<_InstallPath_\>/TestResources/AnnotationAndRegions/ucscHg38GTExGeneExpression.OnlyChr1.bed.gz --verbose --stranded --paired
 
 Typical runtime should be within 10 min, refernce results are in \<_InstallPath_\>/TestResources/CompareTo.
 
