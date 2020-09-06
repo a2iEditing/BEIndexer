@@ -1,4 +1,4 @@
-# RNAEditingIndexer
+# BEIndexer
 A tool for calculating RNA and editing levels from NGS data
 
 ## Installation and Requirements
