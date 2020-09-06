@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This file was suggested by Michael Steinbaugh.
+# This file was suggested by Michael Steinbaugh for the RNAEditingIndex.
 
 set -Eeu -o pipefail
 
@@ -17,18 +17,17 @@ conda install --yes --channel=anaconda git
 
 ### git  clone --recursive
 git clone \
-    --single-branch --branch autoconf \
-    https://github.com/shalomhillelroth/RNAEditingIndexer \
-    /bin/AEI/RNAEditingIndexer
+    https://github.com/shalomhillelroth/BEIndexer \
+    /bin/BEIndexer/BEIndexer
 
 # Build the program.
 (
-    cd /bin/AEI/RNAEditingIndexer || exit 1
+    cd /bin/BEIndexer/BEIndexer || exit 1
 
     ./configure \
     BEDTOOLS_PATH=bedtools \
     SAMTOOLS_PATH=samtools \
-    RESOURCES_DIR=/bin/AEI/RNAEditingIndexer/Resources \
+    RESOURCES_DIR=/bin/BEIndexer/BEIndexer/Resources \
     JAVA_HOME=/opt/conda \
     BAM_UTILS_PATH=bam \
     PYTHON27_PATH=python \
@@ -39,10 +38,10 @@ git clone \
 )
 
 # Index genome FASTA files using samtools.
-find /bin/AEI/RNAEditingIndexer/Resources/Genomes \
+find /bin/BEIndexer/BEIndexer/Resources/Genomes \
     -type f -name "*.fa" \
     -print0 | xargs -0 -I {} \
         samtools faidx {}
         
 
-chmod -fR 777 /bin/AEI
+chmod -fR 777 /bin/BEIndexer
