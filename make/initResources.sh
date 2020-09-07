@@ -414,23 +414,23 @@ then
   # RefSeq All
   echo "Downloading MM10 RefSeq All Table ${MM10_FTP_URL}${MM10_ALL_REFSEQ_TABLE_FILE}"
   wget "${MM10_FTP_URL}${MM10_ALL_REFSEQ_TABLE_FILE}"  --directory-prefix="${MURINE_REFSEQ_DIR}"
-  echo "Processing MM10 RefSeq Curated Table ${MM10_ALL_REFSEQ_TABLE_FILE}"
-  zcat "${HUMAN_REFSEQ_DIR}/${MM10_ALL_REFSEQ_TABLE_FILE}"| awk '{OFS ="\t"} {print $3,$5,$6,$2,$13,$4,$10,$11}' | \
-    gzip > "${HUMAN_REFSEQ_DIR}/${MM10_ALL_REFSEQ_FILE}"
+  echo "Processing MM10 RefSeq All Table ${MM10_ALL_REFSEQ_TABLE_FILE}"
+  zcat "${MURINE_REFSEQ_DIR}/${MM10_ALL_REFSEQ_TABLE_FILE}"| awk '{OFS ="\t"} {print $3,$5,$6,$2,$13,$4,$10,$11}' | \
+    gzip > "${MURINE_REFSEQ_DIR}/${MM10_ALL_REFSEQ_FILE}"
 
   # --- CDS Regions
-  zcat "${HUMAN_REFSEQ_DIR}/${MM10_ALL_REFSEQ_FILE}"| cut -f1,7,8 \
+  zcat "${MURINE_REFSEQ_DIR}/${MM10_ALL_REFSEQ_FILE}"| cut -f1,7,8 \
    | awk -F ["\t",] '{OFS="\t"; for (i=2; i<=(NF-1)/2 ; i++) {j=i+(NF-1)/2; print $1,$i,$j }}'| gzip > \
-   "${HUMAN_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed"
-  zcat "${HUMAN_REFSEQ_DIR}/${MM10_ALL_REFSEQ_TABLE_FILE}"| awk '{OFS ="\t"} {print $3,$7,$8}' | "${BEDTOOLS_PATH}" \
-  subtract -a "${HUMAN_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed" -b stdin | \
-  "${BEDTOOLS_PATH}" subtract -a "${HUMAN_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed" -b stdin | \
+   "${MURINE_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed"
+  zcat "${MURINE_REFSEQ_DIR}/${MM10_ALL_REFSEQ_TABLE_FILE}"| awk '{OFS ="\t"} {print $3,$7,$8}' | "${BEDTOOLS_PATH}" \
+  subtract -a "${MURINE_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed" -b stdin | \
+  "${BEDTOOLS_PATH}" subtract -a "${MURINE_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed" -b stdin | \
   "${BEDTOOLS_PATH}" sort -i stdin| ${BEDTOOLS_PATH} merge -i stdin| \
   ${BEDTOOLS_PATH} subtract -a stdin -b "${MURINE_REGIONS_DIR}/${MM10_REGIONS_FILE}"| gzip > \
-  "${HUMAN_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}"
+  "${MURINE_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}"
   echo "Done Processing MM10 RefSeq All CDS Table (B1 B2 excluded)"
 
-  rm "${HUMAN_REFSEQ_DIR}/${MM10_ALL_REFSEQ_TABLE_FILE}" "${HUMAN_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed"
+  rm "${MURINE_REFSEQ_DIR}/${MM10_ALL_REFSEQ_TABLE_FILE}" "${MURINE_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.Exons.bed"
   echo "Done Processing MM10 RefSeq Curated Table ${MM10_ALL_REFSEQ_TABLE_FILE}"
 
   # --- Generate Indexes for CDSs
@@ -438,8 +438,8 @@ then
   then
     echo "Attempting to Create Genome Index of MM10 CDS Regions (RefSeq All) ${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}"
     "${JAVA_HOME}/bin/java" -jar "${LIB_DIR}/EditingIndexJavaUtils.jar" GenerateIndex -i \
-      "${HUMAN_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}" -g "${HUMAN_GENOME_DIR}/${MM10_GENOME_FASTA}" \
-      -o "${HUMAN_REGIONS_DIR}/${MM10_GENOME_FASTA}.${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.GenomeIndex.jsd" -b "${BEDTOOLS_PATH}"
+      "${MURINE_REGIONS_DIR}/${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}" -g "${MURINE_GENOME_DIR}/${MM10_GENOME_FASTA}" \
+      -o "${MURINE_REGIONS_DIR}/${MM10_GENOME_FASTA}.${MM10_CDS_REFSEQ_ALL_REGIONS_FILE}.GenomeIndex.jsd" -b "${BEDTOOLS_PATH}"
   fi
 
   # Genes Expression
@@ -531,7 +531,7 @@ then
 
   # Genes Expression
   echo "Warning: Murine Gene Expression was derived from ENCODE MM9 table from 2013! (Newer Data was not available)"
-  echo "Processing MM10Genes Expression File ${MURINE_GENE_EXPRESSION_FILE} For MM9"
+  echo "Processing MM09Genes Expression File ${MURINE_GENE_EXPRESSION_FILE} For MM9"
   ${PYTHON27_PATH:?} "${DEV_ROOT}/make/compileMouseEncodeGeneExpression.py" "${MURINE_GENES_EXPRESSION_DIR}/${MURINE_GENE_EXPRESSION_FOLDER}"  "${MURINE_GENES_EXPRESSION_DIR}/${MM9_GENES_EXPRESSION_FILE}" "${MURINE_REFSEQ_DIR}/${MM9_REFSEQ_FILE}"
   rm -r "${MURINE_GENES_EXPRESSION_DIR:?}/${MURINE_GENE_EXPRESSION_FOLDER:?}"
   echo "Done Processing MM9 Genes Expression From Tables ${MURINE_GENE_EXPRESSION_FILE}"
