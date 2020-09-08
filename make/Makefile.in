@@ -321,7 +321,8 @@ build : $(PackageListLoop)
     @JAVA_HOME@ \
     @BAM_UTILS_PATH@ \
     @DONT_GENERATE_GENOME_INDEXES@ \
-    $(DevRoot)
+    $(DevRoot) \
+    @PYTHON27_PATH@
 
 	ln -s $(DevRoot)/src/BEIndexer/BEIndexer $(DevRoot)
 	$(Print) Done build.
